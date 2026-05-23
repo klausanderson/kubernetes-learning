@@ -8,7 +8,7 @@ spec:
   containers:
     - name: nginx
       image: cgr.dev/chainguard/nginx:latest
-      ports:
+      ports:  
         - containerPort: 8080
           protocol: TCP
       readinessProbe:

@@ -1,0 +1,144 @@
+#Ingress
+## Ingress routes external HTTP/HTTPS traffic to Services. Requires an Ingress Controller
+### For GKE, you must use annotations, you can not use ingressClassName
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-ingress
+  # annotations:kubernetes.io/ingress.class: "nginx"
+spec: 
+  ingressClassName: nginx # name of an IngressClass cluster resouces
+  rules:
+    - host: app.example.com 
+      http: 
+        paths:
+          - path: /
+            pathType: ImplementationSpecific # could be Exact, Prefix, ImplementationSpecific
+            backend: # defines the referenced service endpoint to which the traffic will be forwarded to
+              service: 
+                name: my-service
+                port: 
+                  number: 80
+---
+# Deployment for the Ingress Controller to have what to route to
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.26.0
+          
+---
+# Service for Ingress
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  type: ClusterIP
+  selector:
+    matchLabels:
+      app: my-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+
+# Ingress with GKE
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minimal-gke
+  annotations:
+    kubernetes.io/ingress.class: "gce"
+    # kubernetes.io/ingress.class: "gce-internal" (for traffic external to cluster but internal to VPC)
+spec:
+  # NOTE: You can't use spec.ingressClassName for GKE ingress
+  rules:
+    - host: "ingress-example-gke.com"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nginx-nodeport
+                port:
+                  number: 80
+---
+# NodePort Service definition for GKE Ingress Controller
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-nodeport
+spec: 
+  type: NodePort
+  selector:
+    matchLabels:
+      app: my-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+
+
+#GatewayAPI
+##Requires a Gateway Resource config, a HTTPRoute resource that has the rules
+#And a Service as backend to route to pods
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata: 
+  name: my-gateway
+spec: 
+  gatewayClassName: gke-l7-global-external-managed # add gatewayapi controller
+  listeners: # 
+    - name: http # a name for the listener
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        kinds:
+          - kind: HTTPRoute # point to the HTTPRoute resource
+---
+
+#HTTPRoute
+#This is where the routing rules are defined
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: my-httproute
+spec:
+  parentRefs: # point to the gateway that the HTTPRoute will attach to
+    - name: my-gateway
+  hostnames: # 
+    - "gke-gateway-example.com"
+  rules: 
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: nginx-nodeport
+          kind: Service
+          port: 80
+---
+
+
+
+
+
+
+
+

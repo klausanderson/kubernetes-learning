@@ -1,0 +1,246 @@
+#Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+        - name: nginx-app
+          image: nginx:1.26.0
+---
+
+#ClusterIP Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: clusterIP-service
+spec:
+  type: ClusterIP
+  selector:
+    matchLabels:
+      app: my-app #must match the label for the pods 
+  ports:
+    - protocol: TCP
+      port: 80 # port the service listens on
+      targetPort: 80 # port the container listens on\
+--- 
+
+#NodePort service
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodeport-service
+spec:
+  type: NodePort
+  selector:
+    matchLabels:
+      app: my-app #must match the label for the pods 
+  ports:
+    - protocol: TCP
+      port: 80 # port the service listens on
+      targetPort: 80 # port the container listens on
+---
+
+# LoadBalancer Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: LoadBalancer-service
+spec:
+  type: LoadBalancer
+  selector:
+    matchLabels:
+      app: my-app #must match the label for the pods 
+  ports:
+    - protocol: TCP
+      port: 80 # port the service listens on
+      targetPort: 80 # port the container listens on
+---
+
+#CronJob
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: my-CronJob
+spec:
+  schedule: "* * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template: # for the pod that will run the job
+        spec: # describe the pod
+          containers:
+            - name: nginx
+              image: nginx:1.26.0
+              command: ["date"]  #specify the command to run when the pod is created
+---
+
+#DaemonSet -> Run a copy of a specified pod on every node, useful for log monitoring
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: my-daemonset
+spec:
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app # must match the matchLabels
+    spec:
+      containers:
+        - name: fluentd
+          image: fluentd:v1.16-1
+---
+
+# Headless Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: clusterIPs #Plural because it sets up DNS for each replica \
+                   #in the StatefulSet (e.g. nginx-0.nginxs.default.svc.cluster.local)
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    matchLabels:
+      app: my-app #must match the label for the pods 
+  ports:
+    - protocol: TCP
+      port: 80 # port the service listens on
+      targetPort: 80 # port the container listens on
+---
+
+#StatefulSet
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: my-statefulset
+spec:
+  serviceName: clusterIPs #defined above, headless service
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+        - name: db
+          image: postgres:16
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: standard
+        resources:
+          requests:
+            storage: 100Mi
+---
+
+# ConfigMap
+## Property-Like-Keys -> good for passing environment data
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-configmap-property-like-keys
+data:
+  NAME: YourAppName
+  VERSION: 1.0.0
+  AUTHOR: YourName
+---
+
+# ConfigMap
+## File-like-keys -> good for passing a config file that is expected at runtime by the application
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-configmap-file-like-keys
+data:
+  conf.yml: |
+    name: YourAppName
+    version: 1.0.0
+    author: YourName
+
+---
+#ConfigMap utilization in a pod definition
+apiVersion: v1
+kind: Pod
+metadata:
+  name: configmap-usage
+spec:
+  containers:
+    - name: nginx
+      image: nginx:1.26.0
+      volumeMounts:
+        - name: configmap-file-like-keys
+          mountPath: /etc/config
+      envFrom:
+        - configMapRef:
+            name: my-configmap-property-like-keys #we take the property like keys as environment vars
+  volumes:
+    - name: configmap-file-like-keys
+      configMap:
+        name: my-configmap-file-like-keys # we take the file like keys config map defined earlier
+---
+# Secret
+apiVersion: v1
+kind: Secret
+metadata:
+  name: my-secret
+type: Opaque # arbitrary user-defined data, can be of other types: kubernetes.io/dockercfg / kubernetes.io/ssh-auth
+stringData:
+  key: value
+---
+# Secret with base64 encoding
+apiVersion: v1
+kind: Secret
+metadata:
+  name: my-secret-base64
+type: Opaque # arbitrary user-defined data
+data:
+  key: valueBase64
+---
+# Secret usage in a pod definition
+## We will use volume mounts for that
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+    - name: nginx
+      image: nginx:1.16.0
+      volumeMounts:
+        - name: secret-base64-data
+          mountPath: /etc/config
+      env:
+        - name: ENV_VAR_FROM_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: my-secret-base64
+              key: key
+  volumes:
+    - name: secret-base64-data
+      secret:
+        secretName: my-secret-base64
+---
+

@@ -29,7 +29,7 @@ tasks:
   04-minimal-port-forward:
     desc: "Port forward minimal"
     cmds:
-      - kubectl port-forward -n ${NAMESPACE} nginx-minimal 8080:80
+      - kubectl port-forward -n ${NAMESPACE} nginx-minimal 8081:80
 
   05-better-apply:
     desc: "Apply the better pod configuration"
@@ -39,7 +39,7 @@ tasks:
   06-better-port-forward:
     desc: "Port forward to the better pod configuration"
     cmds:
-      - kubectl port-forward -n ${NAMESPACE} nginx-better 8080:8080
+      - kubectl port-forward -n ${NAMESPACE} nginx-better 8081:8080
 
   07-delete-namespace:
     desc: "Delete the namespace to clean up"

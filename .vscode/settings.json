@@ -1,0 +1,5 @@
+{
+    "yaml.schemas": {
+        "kubernetes://schema/apps/v1@deployment+v1@service+v1@service": "file://wsl.localhost/Ubuntu/home/klaus/projects/devops-directive-kubernetes-course/04-built-in-resource-types/kubernetes-resources-intermediate.yaml"
+    }
+}
