@@ -16,3 +16,12 @@ spec:
           name: api-node
           port: 3000
           scheme: http
+    - kind: Rule
+      match: Host(`34.116.233.31`) && PathPrefix(`/api/node`)
+      middlewares:
+        - name: strip-api-prefixes
+      services:
+        - kind: Service
+          name: api-node
+          port: 3000
+          scheme: http
