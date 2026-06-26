@@ -2,13 +2,13 @@ version: "3"
 
 env:
   CLUSTER_NAME: devops-directive-kubernetes-course
-  GCP_REGION: us-central1
-  GCP_ZONE: us-central1-a
+  GCP_REGION: europe-central2
+  GCP_ZONE: europe-central2-a
   # Set default gum style options
   BORDER: double
   BORDER_FOREGROUND: "212"
   PADDING: "1 1"
-  MARGIN: "1 1"
+tas  MARGIN: "1 1"
 
 tasks:
   01-run-kubent:
@@ -29,7 +29,7 @@ tasks:
   04-upgrade-control-plane:
     desc: "Upgrade the control plane to a specific version"
     vars:
-      VERSION: 1.30.1-gke.1329003
+      VERSION: 1.36.0-gke.2459000
     cmds:
       - cmd: |
           gum style "$(cat <<EOF
@@ -51,13 +51,15 @@ tasks:
   05-create-new-nodepool:
     desc: "Provision a new nodepool with the update control plane version"
     vars:
-      GCP_PROJECT_ID: kubernetes-course-424917
+      GCP_PROJECT_ID: k8s-learning-gke
     cmds:
       - |
         gcloud container node-pools create updated-node-pool \
           --cluster ${CLUSTER_NAME} \
           --zone ${GCP_ZONE} \
           --machine-type e2-standard-2 \
+          --disk-type=pd-balanced \
+          --disk-size=50 \
           --num-nodes 2 \
           --workload-metadata=GKE_METADATA
 

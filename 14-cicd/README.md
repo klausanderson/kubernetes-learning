@@ -1,6 +1,6 @@
 # Continuous Integration and Continuous Delivery
 
-CI/CD for Kubernetes cna be broken down into a few different components:
+CI/CD for Kubernetes can be broken down into a few different components:
 
 1. Building container images
 2. Pushing container images to a registry

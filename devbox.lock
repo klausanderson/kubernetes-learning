@@ -49,6 +49,70 @@
         }
       }
     },
+    "azure-cli@latest": {
+      "last_modified": "2026-06-11T01:27:03Z",
+      "resolved": "github:NixOS/nixpkgs/b503dde361500433ca25a32e8f4d218bf58fb659#azure-cli",
+      "source": "devbox-search",
+      "version": "2.86.0",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/jn583a42p0wgh2bfhrjzigb3mbbqgya0-python3.13-azure-cli-2.86.0",
+              "default": true
+            },
+            {
+              "name": "dist",
+              "path": "/nix/store/yrvh4kfgfaygmpwfbs9wg1710mvs26w9-python3.13-azure-cli-2.86.0-dist"
+            }
+          ],
+          "store_path": "/nix/store/jn583a42p0wgh2bfhrjzigb3mbbqgya0-python3.13-azure-cli-2.86.0"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/6p70rx04gf83c2fn2wisby2bfwgpka5b-python3.13-azure-cli-2.86.0",
+              "default": true
+            },
+            {
+              "name": "dist",
+              "path": "/nix/store/2x82nrrcyvxx7k2kp0mxq9xyagykb47f-python3.13-azure-cli-2.86.0-dist"
+            }
+          ],
+          "store_path": "/nix/store/6p70rx04gf83c2fn2wisby2bfwgpka5b-python3.13-azure-cli-2.86.0"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/sz4vn79z1gj7jyhcm37xvwpwrgj1dd39-python3.13-azure-cli-2.86.0",
+              "default": true
+            },
+            {
+              "name": "dist",
+              "path": "/nix/store/sljnyna9iv5pvbpp94vh4grqpk47n0l2-python3.13-azure-cli-2.86.0-dist"
+            }
+          ],
+          "store_path": "/nix/store/sz4vn79z1gj7jyhcm37xvwpwrgj1dd39-python3.13-azure-cli-2.86.0"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/1p4k7s7p5h50748xqqmk8prykv7afzrb-python3.13-azure-cli-2.86.0",
+              "default": true
+            },
+            {
+              "name": "dist",
+              "path": "/nix/store/6hbxys3qzpjm0qbchyvhsm3fc01di06n-python3.13-azure-cli-2.86.0-dist"
+            }
+          ],
+          "store_path": "/nix/store/1p4k7s7p5h50748xqqmk8prykv7afzrb-python3.13-azure-cli-2.86.0"
+        }
+      }
+    },
     "civo@latest": {
       "last_modified": "2024-06-13T11:09:45Z",
       "resolved": "github:NixOS/nixpkgs/3f84a279f1a6290ce154c5531378acc827836fbb#civo",
@@ -943,7 +1007,7 @@
     },
     "nodejs_20@latest": {
       "last_modified": "2024-05-22T06:18:38Z",
-      "plugin_version": "0.0.2",
+      "plugin_version": "0.0.3",
       "resolved": "github:NixOS/nixpkgs/3f316d2a50699a78afe5e77ca486ad553169061e#nodejs_20",
       "source": "devbox-search",
       "version": "20.12.2",
